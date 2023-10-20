@@ -16,17 +16,34 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
+    /**
+     * Gets all students
+     *
+     * @return List of students
+     */
     @GetMapping("/getAll")
     public List<Student> list() {
         return studentService.listAll();
     }
 
+    /**
+     * Adds a new student
+     *
+     * @param student Student object to be added
+     * @return String message indicating success
+     */
     @PostMapping("/add")
     public String add(@RequestBody Student student) {
         studentService.save(student);
         return "New Student Added " + student.getName() + " ID " + student.getId();
     }
 
+    /**
+     * Gets a student by id
+     *
+     * @param id Student id
+     * @return ResponseEntity containing student object or NOT_FOUND status
+     */
     @GetMapping("/get/id/{id}")
     public ResponseEntity<Student> get(@PathVariable Integer id) {
         try {
@@ -38,6 +55,12 @@ public class StudentController {
         }
     }
 
+    /**
+     * Updates a student
+     *
+     * @param student Student object to be updated
+     * @return ResponseEntity containing student object or NOT_FOUND status
+     */
     @PutMapping("/update")
     public ResponseEntity<Student> update(@RequestBody Student student) {
         try {
@@ -58,6 +81,12 @@ public class StudentController {
         }
     }
 
+    /**
+     * Deletes a student by id
+     *
+     * @param id Student id
+     * @return String message indicating success
+     */
     @DeleteMapping("/delete/id/{id}")
     public String delete(@PathVariable Integer id) {
         studentService.delete(id);
