@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.NoSuchElementException;
+
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -49,13 +49,18 @@ public class StudentController {
      * @return ResponseEntity containing student object or NOT_FOUND status
      */
     @GetMapping("/get/id/{id}")
-    public ResponseEntity<Student> get(@PathVariable Integer id) {
+    public ResponseEntity<Object> get(@PathVariable Integer id) {
         try {
             Student student = studentService.get(id);
-            return new ResponseEntity<Student>(student, HttpStatus.OK);
+            return new ResponseEntity<Object>(student, HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
+            // Create a JSON response body with the error message
+            Map<String, String> errorBody = new HashMap<>();
+            errorBody.put("error", "Student with id " + id + " is not found");
+
+            // Return a ResponseEntity with the error body and NOT_FOUND status
+            return new ResponseEntity<Object>(errorBody, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -67,13 +72,26 @@ public class StudentController {
      * http://localhost:{port}/api/student/get?id={student-id}
      */
     @GetMapping("/get")
-    public ResponseEntity<Student> getStudent(@RequestParam("id") Integer id) {
+    public ResponseEntity<Object> getStudent(@RequestParam("id") Integer id) {
         try {
             Student student = studentService.get(id);
-            return new ResponseEntity<Student>(student, HttpStatus.OK);
+
+            // Create a JSON response body with the success message
+            Map<String, String> successBody = new LinkedHashMap<>();
+            successBody.put("ID", String.valueOf(student.getId()));
+            successBody.put("studentName", student.getName());
+            successBody.put("studentAddress", student.getAddress());
+
+            return new ResponseEntity<Object>(successBody, HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
+
+            // Create a JSON response body with the error message
+            Map<String, String> errorBody = new HashMap<>();
+            errorBody.put("error", "Student with id " + id + " is not found");
+
+            // Return a ResponseEntity with the error body and NOT_FOUND status
+            return new ResponseEntity<Object>(errorBody, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -84,7 +102,7 @@ public class StudentController {
      * @return ResponseEntity containing student object or NOT_FOUND status
      */
     @PutMapping("/update")
-    public ResponseEntity<Student> update(@RequestBody Student student) {
+    public ResponseEntity<Object> update(@RequestBody Student student) {
         try {
 
             // Get existing student by id
@@ -94,12 +112,60 @@ public class StudentController {
             existingStudent.setName(student.getName());
             existingStudent.setAddress(student.getAddress());
 
+            // Create a JSON response body with the success message
+            Map<String, String> successBody = new HashMap<>();
+            successBody.put("success", "Student with id " + student.getId() + " is updated");
+
             // Save Student Changes
             studentService.save(existingStudent);
-            return new ResponseEntity<>(HttpStatus.OK);
+
+            return new ResponseEntity<Object>(successBody, HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
+
+            // Create a JSON response body with the error message
+            Map<String, String> errorBody = new HashMap<>();
+            errorBody.put("error", "Student with id " + student.getId() + " is not found");
+
+            // Return a ResponseEntity with the error body and NOT_FOUND status
+            return new ResponseEntity<Object>(errorBody, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Updates a student
+     *
+     * @param student Student object to be updated
+     * @return ResponseEntity containing student object or NOT_FOUND status
+     */
+    @PutMapping("/update/with_id")
+    public ResponseEntity<Object> updateStudent(@RequestBody Student student, @RequestParam("id") Integer id) {
+        try {
+
+            // Get existing student by id
+            Student existingStudent = studentService.get(id);
+
+            // Update the existing student
+            existingStudent.setName(student.getName());
+            existingStudent.setAddress(student.getAddress());
+
+            // Create a JSON response body with the error message
+            Map<String, String> successBody = new HashMap<>();
+            successBody.put("success", "Student with id " + id + " is updated");
+
+            // Save Student Changes
+            studentService.save(existingStudent);
+
+            return new ResponseEntity<Object>(successBody, HttpStatus.OK);
+
+        } catch (NoSuchElementException e) {
+
+            // Create a JSON response body with the error message
+            Map<String, String> errorBody = new HashMap<>();
+            errorBody.put("error", "Student with id " + id + " is not found");
+
+            // Return a ResponseEntity with the error body and NOT_FOUND status
+            return new ResponseEntity<Object>(errorBody, HttpStatus.NOT_FOUND);
         }
     }
 
