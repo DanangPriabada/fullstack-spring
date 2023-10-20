@@ -11,17 +11,21 @@ import java.util.NoSuchElementException;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/api/student")
 public class StudentController {
     @Autowired
     private StudentService studentService;
+
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
     /**
      * Gets all students
      *
      * @return List of students
      */
-    @GetMapping("/getAll")
+    @GetMapping("/get_all")
     public List<Student> list() {
         return studentService.listAll();
     }
@@ -46,6 +50,24 @@ public class StudentController {
      */
     @GetMapping("/get/id/{id}")
     public ResponseEntity<Student> get(@PathVariable Integer id) {
+        try {
+            Student student = studentService.get(id);
+            return new ResponseEntity<Student>(student, HttpStatus.OK);
+
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Gets a student by id
+     *
+     * @param id Student id
+     * @return ResponseEntity containing student object or NOT_FOUND status
+     * http://localhost:{port}/api/student/get?id={student-id}
+     */
+    @GetMapping("/get")
+    public ResponseEntity<Student> getStudent(@RequestParam("id") Integer id) {
         try {
             Student student = studentService.get(id);
             return new ResponseEntity<Student>(student, HttpStatus.OK);
@@ -89,6 +111,19 @@ public class StudentController {
      */
     @DeleteMapping("/delete/id/{id}")
     public String delete(@PathVariable Integer id) {
+        studentService.delete(id);
+        return "Deleted Student with id " + id;
+    }
+
+    /**
+     * Deletes a student by id
+     *
+     * @param id Student id
+     * @return String message indicating success
+     * http://localhost:{port}/api/student/delete?id={student-id}
+     */
+    @DeleteMapping("/delete")
+    public String deleteStudent(@RequestParam("id") Integer id) {
         studentService.delete(id);
         return "Deleted Student with id " + id;
     }
