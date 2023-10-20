@@ -15,15 +15,26 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Student saveStudent(Student student) {
-        return studentRepository.save(student);
+    public void save(Student student) {
+        studentRepository.save(student);
     }
 
     @Override
-    public List<Student> getAllStudents() {
+    public void delete(Integer id) {
+        studentRepository.deleteById(id);
+    }
+
+    @Override
+    public Student get(Integer id) {
+        return studentRepository.findById(id).get();
+    }
+
+    @Override
+    public List<Student> listAll() {
         Iterable<Student> students = studentRepository.findAll();
         List<Student> studentList = new ArrayList<>();
         students.forEach(studentList::add);
         return studentList;
     }
+
 }
