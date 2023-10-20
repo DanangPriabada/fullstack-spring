@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.Student;
 import com.example.demo.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -189,9 +190,23 @@ public class StudentController {
      * http://localhost:{port}/api/student/delete?id={student-id}
      */
     @DeleteMapping("/delete")
-    public String deleteStudent(@RequestParam("id") Integer id) {
-        studentService.delete(id);
-        return "Deleted Student with id " + id;
+    public ResponseEntity<Object> deleteStudent(@RequestParam("id") Integer id) {
+        try {
+            studentService.delete(id);
+
+            // Create a JSON response body with the error message
+            Map<String, String> successBody = new HashMap<>();
+            successBody.put("success", "Student with id " + id + " is deleted");
+
+            return new ResponseEntity<Object>(successBody, HttpStatus.OK);
+
+        } catch (EmptyResultDataAccessException e) {
+            // Create a JSON response body with the error message
+            Map<String, String> errorBody = new HashMap<>();
+            errorBody.put("error", "Student with id " + id + " is not found");
+
+            return new ResponseEntity<Object>(errorBody, HttpStatus.NOT_FOUND);
+        }
     }
 
 }
